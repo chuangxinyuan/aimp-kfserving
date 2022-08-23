@@ -1,3 +1,18 @@
+# 上海仪电人工智能中台说明
+上海仪电人工智能中台v1.0的AI模型推理组件是基于kfserving 0.6.0版本。
+目前版本验证并且测试过如下的模型服务类型：
+
+| Out-of-the-box Predictor  | Exported model| Prediction Protocol | HTTP | gRPC | Versions| Examples |
+| ------------- | ------------- | ------------- | ------------- | ------------- | ------------- | ------------- |
+| [Triton Inference Server](https://github.com/triton-inference-server/server) | [TensorFlow,TorchScript,ONNX,TensorRT](https://docs.nvidia.com/deeplearning/triton-inference-server/user-guide/docs/model_repository.html)| v2 | :heavy_check_mark: | :heavy_check_mark: | [Compatibility Matrix](https://docs.nvidia.com/deeplearning/frameworks/support-matrix/index.html)| [Triton Examples](./v1beta1/triton) |
+| [TFServing](https://www.tensorflow.org/tfx/guide/serving) | [TensorFlow SavedModel](https://www.tensorflow.org/guide/saved_model) | v1 | :heavy_check_mark: | :heavy_check_mark: | [TFServing Versions](https://github.com/tensorflow/serving/releases) | [TensorFlow Examples](./v1alpha2/tensorflow)  |
+| [TorchServe](https://pytorch.org/serve/server.html) | [Eager Model/TorchScript](https://pytorch.org/docs/master/generated/torch.save.html) | v1 | :heavy_check_mark: | :heavy_check_mark: | 0.3.0 | [TorchServe Examples](./v1beta1/torchserve)  |
+| [SKLearn KFServer](https://github.com/kubeflow/kfserving/tree/master/python/sklearnserver) | [Pickled Model](https://scikit-learn.org/stable/modules/model_persistence.html) | v1 | :heavy_check_mark: | -- | 0.20.3 | [SKLearn Iris](./v1beta1/sklearn/v1)  |
+
+原生的支持的模型服务列表参见：
+[model servers](./docs/samples/README.md)
+
+---
 # KFServing
 [![go.dev reference](https://img.shields.io/badge/go.dev-reference-007d9c?logo=go&logoColor=white)](https://pkg.go.dev/github.com/kubeflow/kfserving)
 [![Coverage Status](https://coveralls.io/repos/github/kubeflow/kfserving/badge.svg?branch=master)](https://coveralls.io/github/kubeflow/kfserving?branch=master)

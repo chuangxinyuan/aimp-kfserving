@@ -1,3 +1,5 @@
+# 仪电人工智能中台v1.0版本基于 branch release-0.6
+---
 # KServe
 [![go.dev reference](https://img.shields.io/badge/go.dev-reference-007d9c?logo=go&logoColor=white)](https://pkg.go.dev/github.com/kserve/kserve)
 [![Coverage Status](https://coveralls.io/repos/github/kserve/kserve/badge.svg?branch=master)](https://coveralls.io/github/kserve/kserve?branch=master)

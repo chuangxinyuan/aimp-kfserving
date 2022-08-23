@@ -1,8 +1,14 @@
+# 创建你的模型
+sklearn 模型文件格式是 joblib， 参考如下的例子创建自己的模型
+## 例子：鸢尾花（Iris）多分类
+iris的分类是一个典型的人工智能分类问题，选取的是比较典型特点的三种鸢尾花：山鸢尾Iris setosa(0)、变色鸢尾Iris versicolor (1)、维吉尼亚鸢尾Iris virginica (2)，通过花的四个特征确定了单株鸢尾花的种类，这个四个特征是鸢尾花花瓣（petals）的长度和宽度、花萼（sepals）的长度和宽度，关于该例子的其他详细资料请参考：[ 鸢尾花（Iris）](https://blog.csdn.net/heivy/article/details/100512264)
+
+本例子模型通过输入4个特征值，最终推测花的种类
 ## Creating your own model and testing the SKLearn Server locally.
 
 To test the [Scikit-Learn](https://scikit-learn.org/stable/) server, first we need to generate a simple scikit-learn model using Python. 
 
-```python
+```python 3.7
 from sklearn import svm
 from sklearn import datasets
 from joblib import dump
@@ -12,6 +18,8 @@ X, y = iris.data, iris.target
 clf.fit(X, y)
 dump(clf, 'model.joblib')
 ```
+* 注意，本地测试的时候，本地安装的Scikit-learn的版本最好和AIMP的OOB的模型服务器中的sikit-learn的版本一致，即0.20.3版本，这样能够保证本地测试的效果和在kfserving中运行的效果保持一致。
+* [sikit learn 官方安装文档](https://scikit-learn.org/stable/install.html)
 
 Then, we can install and run the [SKLearn Server](../../../../../python/sklearnserver) using the generated model and test for prediction. Models can be on local filesystem, S3 compatible object storage, Azure Blob Storage, or Google Cloud Storage.
 
@@ -34,16 +42,16 @@ res = requests.post('http://localhost:8080/v1/models/svm:predict', json=formData
 print(res)
 print(res.text)
 ```
-
-# Predict on an InferenceService using SKLearnServer
+# 使用模型推理服务
 
 ## Setup
-1. Your ~/.kube/config should point to a cluster with [KFServing installed](https://github.com/kubeflow/kfserving/#install-kfserving).
-2. Your cluster's Istio Ingress gateway must be [network accessible](https://istio.io/latest/docs/tasks/traffic-management/ingress/ingress-control/).
+1. 中台运行正常
+## Create the 推理服务
 
-## Create the InferenceService
+在中台模型UI中粘贴进去 sklearn.yaml文件的内容
+![中台模型UI](/docs/diagrams/createrInferUI.png)
 
-Apply the CRD
+或者Apply the CRD
 ```
 kubectl apply -f sklearn.yaml
 ```
@@ -52,14 +60,16 @@ Expected Output
 ```
 $ inferenceservice.serving.kubeflow.org/sklearn-iris created
 ```
-## Run a prediction
-The first step is to [determine the ingress IP and ports](https://github.com/kubeflow/kfserving#determine-the-ingress-ip-and-ports) and set `INGRESS_HOST` and `INGRESS_PORT`
+## Run a prediction （不需要access token）
 
 ```
-MODEL_NAME=sklearn-iris
+MODEL_NAME=iris
 INPUT_PATH=@./iris-input.json
-SERVICE_HOSTNAME=$(kubectl get inferenceservice sklearn-iris -o jsonpath='{.status.url}' | cut -d "/" -f 3)
+SERVICE_HOSTNAME=$(kubectl get inferenceservice iris -o jsonpath='{.status.url}' -n mp | cut -d "/" -f 3)
+INGRESS_HOST=$SERVICE_HOSTNAME
+INGRESS_PORT=80
 curl -v -H "Host: ${SERVICE_HOSTNAME}" http://${INGRESS_HOST}:${INGRESS_PORT}/v1/models/$MODEL_NAME:predict -d $INPUT_PATH
+echo ""
 ```
 
 Expected Output
@@ -85,9 +95,12 @@ Expected Output
 <
 * Connection #0 to host 169.63.251.68 left intact
 {"predictions": [1, 1]}
+# 如果出现如下权限问题，则该推理服务需要access token
+{"code":16, "message":"Missing or invalid \"authorization\" header.", "details":[]}
 ```
-
-## Run SKLearn InferenceService with your own image
+## Run a prediction （需要access token）
+请参考 [《模型推理服务使用方式》章节](/README.md)
+## （参考）Run SKLearn InferenceService with your own image
 Since the KFServing SKLearnServer image is built from a specific version of `scikit-learn` pip package, sometimes it might not be compatible with the pickled model
 you saved from your training environment, however you can build your own SKLearnServer image following [these instructions](../../../../../python/sklearnserver/README.md#building-your-own-scikit-learn-server-docker-image
 ).

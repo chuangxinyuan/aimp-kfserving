@@ -1,16 +1,33 @@
 # 上海仪电人工智能中台说明
 上海仪电人工智能中台v1.0的AI模型推理组件是基于kfserving 0.6.0版本。
-目前版本验证并且测试过如下的模型服务类型：
+目前版本验证过如下的模型服务类型：
 
-| Out-of-the-box Predictor  | Exported model| Prediction Protocol | HTTP | gRPC | Versions| Examples |
+| Out-of-the-box Predictor  | 导出的模型格式| Prediction Protocol | HTTP | gRPC | 版本| 例子 |
 | ------------- | ------------- | ------------- | ------------- | ------------- | ------------- | ------------- |
 | [Triton Inference Server](https://github.com/triton-inference-server/server) | [TensorFlow,TorchScript,ONNX,TensorRT](https://docs.nvidia.com/deeplearning/triton-inference-server/user-guide/docs/model_repository.html)| v2 | :heavy_check_mark: | :heavy_check_mark: | [Compatibility Matrix](https://docs.nvidia.com/deeplearning/frameworks/support-matrix/index.html)| [Triton Examples](./v1beta1/triton) |
 | [TFServing](https://www.tensorflow.org/tfx/guide/serving) | [TensorFlow SavedModel](https://www.tensorflow.org/guide/saved_model) | v1 | :heavy_check_mark: | :heavy_check_mark: | [TFServing Versions](https://github.com/tensorflow/serving/releases) | [TensorFlow Examples](./v1alpha2/tensorflow)  |
 | [TorchServe](https://pytorch.org/serve/server.html) | [Eager Model/TorchScript](https://pytorch.org/docs/master/generated/torch.save.html) | v1 | :heavy_check_mark: | :heavy_check_mark: | 0.3.0 | [TorchServe Examples](./v1beta1/torchserve)  |
-| [SKLearn KFServer](https://github.com/kubeflow/kfserving/tree/master/python/sklearnserver) | [Pickled Model](https://scikit-learn.org/stable/modules/model_persistence.html) | v1 | :heavy_check_mark: | -- | 0.20.3 | [SKLearn Iris](./v1beta1/sklearn/v1)  |
+| [SKLearn KFServer](https://github.com/kubeflow/kfserving/tree/master/python/sklearnserver) | [Pickled Model](https://scikit-learn.org/stable/modules/model_persistence.html) 文件后缀为joblib| v1 | :heavy_check_mark: | -- | 0.20.3 | [SKLearn Iris](./v1beta1/sklearn/v1)  |
 
 原生的支持的模型服务列表参见：
 [model servers](./docs/samples/README.md)
+
+# 模型推理服务使用方式
+* 中台推理服务的地址是 https://infer.dev.aimpcloud.cn (实际的地址根据部署的情况不同会有差异，实际的地址请向管理员索取）。
+
+* 仪电人工智能中台的地址和推理服务地址是不同的地址。如下示例中，假定中台的地址为http://onepanel.niuhongxing.cn ，推理服务的地址是 https://infer.dev.aimpcloud.cn。 则推理服务的使用方法如下：
+
+## 前提：
+
+* 仪电人工智能中台的用户(username)和密码（token）
+* 推理服务所在的名字空间(namespace)和模型的名字(name)。
+## REST API调用序列如下
+* [API详细参考： /apis/v1beta/service/{name} - AIMPInferExample (apifox.cn)](https://www.apifox.cn/apidoc/project-1485755/api-35503298)， inferExample目录中的3个API：
+
+1. REST服务端点：http://onepanel.niuhongxing.cn  ，获取推理服务的access_token， POST /apis/v1beta1/auth/get_access_token ，主要两个参数 ，aimp的用户名和token， 返回 access_token，
+1. REST服务端点：http://onepanel.niuhongxing.cn  ，获取推理服务的原始URL，GET /apis/v1beta1/{namespace}/inferenceservice/{name}，主要两个参数，namespace和 模型的名字,返回原始的推理服务URL
+1. REST服务端点：https://infer.dev.aimpcloud.cn ，根据模型推理服务的要求，进行相应的推理服务调用， POST /v1/models/iris:predict，主要3个参数，payload，access_token和 HOST（原始的推理服务URL中截取的主机地址）
+   * 以curl命令方式示例： curl -k -v -H 'Host: iris--mp.niuhongxing.cn' https://infer.dev.aimpcloud.cn:443/v1/models/iris:predict -d @./iris-input.json, 其中-k 是忽略证书错误
 
 ---
 # KFServing

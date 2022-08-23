@@ -1,8 +1,10 @@
-apiVersion: "serving.kubeflow.org/v1beta1"
-kind: "InferenceService"
-metadata:
-  name: "sklearn-iris"
-spec:
-  predictor:
-    sklearn:
-      storageUri: "gs://kfserving-samples/models/sklearn/iris"
+  apiVersion: "serving.kubeflow.org/v1beta1"
+  kind: "InferenceService"
+  metadata:
+    name: "iris"
+    annotations:
+        autoscaling.knative.dev/target: '2'
+  spec:
+    predictor:
+      sklearn:
+        storageUri: "https://testmodel.blob.core.chinacloudapi.cn/test/sklearn_0.20.3_model.zip"
